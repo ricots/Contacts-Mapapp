@@ -221,6 +221,7 @@ public class SyncWebContact extends AppCompatActivity {
                             }
                         }
 */
+
                         // tmp hash map for single contact
                         HashMap<String, String> contact = new HashMap<>();
 
