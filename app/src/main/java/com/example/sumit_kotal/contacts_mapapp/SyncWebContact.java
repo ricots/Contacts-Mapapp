@@ -1,8 +1,10 @@
 package com.example.sumit_kotal.contacts_mapapp;
 
 import android.app.ProgressDialog;
+import android.content.ContentProviderOperation;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,12 +31,22 @@ public class SyncWebContact extends AppCompatActivity {
 
     String email, name, phone, ofc, lat, lon;
     ArrayList<HashMap<String, String>> conList;
+    ArrayList<ContentProviderOperation> ops;
     private String TAG = SyncWebContact.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync_web_contact);
+
+        ops = new ArrayList<ContentProviderOperation>();
+
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build()
+        );
 
         conList = new ArrayList<>();
 
@@ -44,10 +56,86 @@ public class SyncWebContact extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(SyncWebContact.this, "Button Pressed", Toast.LENGTH_SHORT).show();
+                saveData();
             }
         });
         new GetCont().execute();
+
+    }
+
+    private void saveData() {
+
+        for (int i = 0; i < conList.size(); i++) {
+
+            HashMap<String, String> cont = new HashMap<String, String>();
+            cont = conList.get(i);
+
+            String names = cont.get("name");
+            String mails = cont.get("email");
+            String ph = cont.get("phone");
+            String ofcph = cont.get("officePhone");
+
+            Toast.makeText(this, "" + names, Toast.LENGTH_SHORT).show();
+
+
+            //------------------------------------------------------ Names
+            if (names != null) {
+                ops.add(ContentProviderOperation.newInsert(
+                        ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                        .withValue(
+                                ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                                names).build()
+                );
+            }
+
+            //------------------------------------------------------ Mobile Number
+            if (ph != null) {
+                ops.add(ContentProviderOperation.
+                        newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, ph)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                        .build()
+                );
+            }
+
+            //------------------------------------------------------ Work Numbers
+            if (ofcph != null) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, ofcph)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+                        .build());
+            }
+
+            //------------------------------------------------------ Email
+            if (mails != null) {
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Email.DATA, mails)
+                        .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                        .build());
+            }
+
+            // Asking the Contact provider to create a new contact
+            try {
+                getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            } catch (Exception e) {
+                e.printStackTrace();
+                //  Toast.makeText(myContext, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 
