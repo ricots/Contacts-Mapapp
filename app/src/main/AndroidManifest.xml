@@ -3,7 +3,7 @@
     package="com.example.sumit_kotal.contacts_mapapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -21,12 +21,14 @@
         <activity
             android:name=".Main2Activity"
             android:label="@string/title_activity_main2"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Google API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyANhRNEktAN9fq7ylOp6-HAzOpkzEBqLa4"/>
+            android:value="AIzaSyANhRNEktAN9fq7ylOp6-HAzOpkzEBqLa4" />
+
+        <activity android:name=".SyncWebContact"></activity>
     </application>
 
 </manifest>

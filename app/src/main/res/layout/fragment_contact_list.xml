@@ -5,10 +5,5 @@
     tools:context="com.example.sumit_kotal.contacts_mapapp.ContactList">
 
     <!-- TODO: Update blank fragment layout -->
-    <ListView
-        android:layout_margin="10dp"
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 
 </FrameLayout>

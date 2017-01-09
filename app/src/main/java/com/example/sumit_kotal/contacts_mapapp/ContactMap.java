@@ -1,6 +1,5 @@
 package com.example.sumit_kotal.contacts_mapapp;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,37 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 
-
-public class ContactMap extends Fragment {
+public class ContactMap extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    View view;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     // Google Map
     private SupportMapFragment googleMap;
-    View view;
-
-    private String TAG = Main2Activity.class.getSimpleName();
-
-    private ProgressDialog pDialog;
-
-
-    String email,name,phone,ofc,lat,lon;
-
-    // URL to get contacts JSON
-    private static String url = "http://private-b08d8d-nikitest.apiary-mock.com/contacts";
-
-    ArrayList<HashMap<String, String>> contactList;
 
     public ContactMap() {
         // Required empty public constructor
@@ -85,6 +72,8 @@ public class ContactMap extends Fragment {
 
                 googleMap = ((SupportMapFragment) fragmentManager.findFragmentById(R.id.map));
 
+            googleMap.getMapAsync(this);
+
                 // check if map is created successfully or not
                 if (googleMap == null) {
                     googleMap = SupportMapFragment.newInstance();
@@ -98,12 +87,16 @@ public class ContactMap extends Fragment {
             e.printStackTrace();
         }
 
-
-
         return view;
 
     }
 
 
-
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        LatLng sydney = new LatLng(-33.852, 151.211);
+        googleMap.addMarker(new MarkerOptions().position(sydney)
+                .title("Marker in Sydney"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
 }
