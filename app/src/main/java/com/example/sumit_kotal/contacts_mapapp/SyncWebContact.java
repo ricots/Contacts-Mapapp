@@ -12,11 +12,19 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -68,7 +76,7 @@ public class SyncWebContact extends AppCompatActivity {
             String ofcph = cont.get("officePhone");
             double lat = Double.parseDouble(cont.get("latitude"));
             double lon = Double.parseDouble(cont.get("longitude"));
-            String add = null;
+            String add = cont.get("address");
 
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
@@ -144,7 +152,7 @@ public class SyncWebContact extends AppCompatActivity {
             // Asking the Contact provider to create a new contact
             try {
                 getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-                //Toast.makeText(this, ""+names+" added", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + names + " added to your Contacts", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
                 //  Toast.makeText(myContext, "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -152,6 +160,32 @@ public class SyncWebContact extends AppCompatActivity {
         }
     }
 
+    public JSONObject getLocationInfo(double lat, double lng) {
+
+        HttpGet httpGet = new HttpGet("http://maps.google.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=false");
+        HttpClient client = new DefaultHttpClient();
+        HttpResponse response;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            response = client.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            InputStream stream = entity.getContent();
+            int b;
+            while ((b = stream.read()) != -1) {
+                stringBuilder.append((char) b);
+            }
+        } catch (IOException ignored) {
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject = new JSONObject(stringBuilder.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
 
     /**
      * Async task class to get json by making HTTP call
@@ -200,27 +234,20 @@ public class SyncWebContact extends AppCompatActivity {
                         if (c.has("latitude")) lat = c.getString("latitude");
                         if (c.has("longitude")) lon = c.getString("longitude");
 
-/*
-                        HttpHandler sh2 = new HttpHandler();
+                        // get lat and lng value
+                        JSONObject ret = getLocationInfo(Double.parseDouble(lat), Double.parseDouble(lon));
+                        JSONObject location;
+                        try {
+                            //Get JSON Array called "results" and then get the 0th complete object as JSON
+                            location = ret.getJSONArray("results").getJSONObject(0);
+                            // Get the value of the attribute whose name is "formatted_string"
+                            address = location.getString("formatted_address");
+                            //Log.d("test", "formattted address:" + location_string);
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
 
-                        String jsonStr2 = sh2.makeServiceCall("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lon+"&sensor=true");
-
-                        if (jsonStr2 != null) {
-                            try {
-
-                                JSONObject m=new JSONObject(jsonStr2);
-
-                                JSONArray a=m.getJSONArray("results");
-
-                                JSONObject n=a.getJSONObject(0);
-
-                                address=n.getString("formatted_address");
-
-                            } catch (final JSONException e) {
-                                Log.e(TAG, "Json parsing error: " + e.getMessage());
-                            }
                         }
-*/
+
 
                         // tmp hash map for single contact
                         HashMap<String, String> contact = new HashMap<>();
@@ -262,8 +289,8 @@ public class SyncWebContact extends AppCompatActivity {
              * */
             ListAdapter adapter = new SimpleAdapter(
                     SyncWebContact.this, conList, R.layout.list_item, new String[]{"name", "email",
-                    "phone", "officePhone", "latitude", "longitude"}, new int[]{R.id.name,
-                    R.id.email, R.id.mobile, R.id.officephone, latitude, longitude});
+                    "phone", "officePhone", "latitude", "longitude", "address"}, new int[]{R.id.name,
+                    R.id.email, R.id.mobile, R.id.officephone, latitude, longitude, R.id.address});
 
             lv.setAdapter(adapter);
         }
