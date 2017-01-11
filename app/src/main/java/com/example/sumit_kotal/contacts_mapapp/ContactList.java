@@ -21,7 +21,9 @@ public class ContactList extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     View view;
-    ArrayList<String> contacts = new ArrayList<String>();
+
+    ArrayList<String> contacts = new ArrayList<String>(1000);
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;

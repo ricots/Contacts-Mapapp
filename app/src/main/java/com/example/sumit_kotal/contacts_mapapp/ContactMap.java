@@ -1,15 +1,23 @@
 package com.example.sumit_kotal.contacts_mapapp;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,7 +25,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ContactMap extends Fragment implements OnMapReadyCallback {
@@ -26,6 +38,10 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     View view;
+    ArrayList<String> Name = new ArrayList<String>(1000);
+    ArrayList<String> Phone = new ArrayList<String>(1000);
+    ArrayList<String> Email = new ArrayList<String>(1000);
+    ArrayList<LatLng> LatLng = new ArrayList<LatLng>(1000);
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -70,6 +86,8 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         view= inflater.inflate(R.layout.fragment_contact_map, container, false);
 
+        readContacts();
+
         try {
             // Loading map
                 FragmentManager fragmentManager = getChildFragmentManager();
@@ -95,13 +113,69 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
 
     }
 
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new LatLng(location.getLatitude(), location.getLongitude());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return p1;
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LatLng sydney = new LatLng(-33.852, 151.211);
-        googleMap.addMarker(new MarkerOptions().position(sydney)
-                .title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        for (int i = 0; i < Name.size(); i++) {
+            LatLng lat = LatLng.get(i);
+            MarkerOptions mark = new MarkerOptions().position(lat)
+                    .title("Contact Details").snippet("Name : " + Name.get(i) + "\nPhone : " + Phone.get(i) + "\nEmail : " + Email.get(i));
+
+            googleMap.addMarker(mark);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(lat));
+            googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+
+                    LinearLayout info = new LinearLayout(getActivity());
+                    info.setOrientation(LinearLayout.VERTICAL);
+
+                    TextView title = new TextView(getActivity());
+                    title.setTextColor(Color.BLACK);
+                    title.setGravity(Gravity.CENTER);
+                    title.setTypeface(null, Typeface.BOLD);
+                    title.setText(marker.getTitle());
+
+                    TextView snippet = new TextView(getActivity());
+                    snippet.setTextColor(Color.GRAY);
+                    snippet.setGravity(Gravity.CENTER);
+                    snippet.setText(marker.getSnippet());
+
+                    info.addView(title);
+                    info.addView(snippet);
+
+                    return info;
+                }
+            });
+        }
     }
 
     public void readContacts() {
@@ -122,7 +196,7 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                 name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     System.out.println(name);
-                    //contacts.add(name);
+                    Name.add(name);
 
                     // get the phone number
                     Cursor pCur = null;
@@ -135,7 +209,7 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                         phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         System.out.println(phone);
-                        //contacts.add(phone);
+                        Phone.add(phone);
                     }
                     pCur.close();
 
@@ -157,7 +231,7 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                                 emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 
                         System.out.println(email);
-                        // contacts.add(email);
+                        Email.add(email);
                     }
                     emailCur.close();
 
@@ -199,19 +273,20 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
 
                         address = poBox + street + city + state + postalCode + country;
 
+
                         // Do something with these....
                         System.out.println(address);
+
+                        LatLng lt = getLocationFromAddress(getActivity(), address);
+
+                        LatLng.add(lt);
+                        System.out.println(" ******* " + lt.toString() + " ******* ");
+
                         //contacts.add(address);
 
                     }
                     addrCur.close();
-/*
-                    contacts.add(name+"\n"+phone+"\n"+email+"\n"+address);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                            getActivity().getApplicationContext(), R.layout.text, contacts);
 
-                    list.setAdapter(adapter);
-                    */
                 }
             }
         }

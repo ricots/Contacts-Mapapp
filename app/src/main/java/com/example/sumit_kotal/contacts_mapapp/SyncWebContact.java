@@ -2,6 +2,7 @@ package com.example.sumit_kotal.contacts_mapapp;
 
 import android.app.ProgressDialog;
 import android.content.ContentProviderOperation;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -31,13 +32,14 @@ import java.util.HashMap;
 import static com.example.sumit_kotal.contacts_mapapp.R.id.latitude;
 import static com.example.sumit_kotal.contacts_mapapp.R.id.longitude;
 
+@SuppressWarnings("ALL")
 public class SyncWebContact extends AppCompatActivity {
 
     // URL to get contacts JSON
     private static String url = "http://private-b08d8d-nikitest.apiary-mock.com/contacts";
     public ProgressDialog pDialog;
     public ListView lv;
-    Button button;
+    Button button, button2;
 
     String email, name, phone, ofc, lat, lon, address;
     ArrayList<HashMap<String, String>> conList;
@@ -60,6 +62,17 @@ public class SyncWebContact extends AppCompatActivity {
                 saveData();
             }
         });
+
+
+        button2 = (Button) findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SyncWebContact.this, Main2Activity.class));
+                finish();
+            }
+        });
+
         new GetCont().execute();
 
     }
@@ -242,6 +255,7 @@ public class SyncWebContact extends AppCompatActivity {
                             location = ret.getJSONArray("results").getJSONObject(0);
                             // Get the value of the attribute whose name is "formatted_string"
                             address = location.getString("formatted_address");
+                            address = address.replace("Unnamed Road, ", "");
                             //Log.d("test", "formattted address:" + location_string);
                         } catch (JSONException e1) {
                             e1.printStackTrace();
