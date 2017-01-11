@@ -121,9 +121,9 @@ public class Main2Activity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Contact List";
+                    return "All Contacts";
                 case 1:
-                    return "Contact Map";
+                    return "Contacts Map";
             }
             return null;
         }
