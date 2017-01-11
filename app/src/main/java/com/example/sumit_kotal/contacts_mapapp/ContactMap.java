@@ -38,10 +38,12 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     View view;
-    ArrayList<String> Name = new ArrayList<String>(1000);
-    ArrayList<String> Phone = new ArrayList<String>(1000);
-    ArrayList<String> Email = new ArrayList<String>(1000);
-    ArrayList<LatLng> LatLng = new ArrayList<LatLng>(1000);
+    ArrayList<String> Name = new ArrayList<String>();
+    ArrayList<String> Phone = new ArrayList<String>();
+    ArrayList<String> Email = new ArrayList<String>();
+    ArrayList<LatLng> LatLng = new ArrayList<LatLng>();
+
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -84,25 +86,25 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        view= inflater.inflate(R.layout.fragment_contact_map, container, false);
+        view = inflater.inflate(R.layout.fragment_contact_map, container, false);
 
         readContacts();
 
         try {
             // Loading map
-                FragmentManager fragmentManager = getChildFragmentManager();
+            FragmentManager fragmentManager = getChildFragmentManager();
 
-                googleMap = ((SupportMapFragment) fragmentManager.findFragmentById(R.id.map));
+            googleMap = ((SupportMapFragment) fragmentManager.findFragmentById(R.id.map));
 
             googleMap.getMapAsync(this);
 
-                // check if map is created successfully or not
-                if (googleMap == null) {
-                    googleMap = SupportMapFragment.newInstance();
-                    fragmentManager.beginTransaction().replace(R.id.map,googleMap).commit();
-                    Toast.makeText(getActivity().getApplicationContext(),
-                            "Sorry! unable to create maps", Toast.LENGTH_SHORT)
-                            .show();
+            // check if map is created successfully or not
+            if (googleMap == null) {
+                googleMap = SupportMapFragment.newInstance();
+                fragmentManager.beginTransaction().replace(R.id.map, googleMap).commit();
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "Sorry! unable to create maps", Toast.LENGTH_SHORT)
+                        .show();
             }
 
         } catch (Exception e) {
@@ -119,19 +121,21 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
         List<Address> address;
         LatLng p1 = null;
 
-        try {
-            address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
-                return null;
+        if (strAddress != null) {
+            try {
+                address = coder.getFromLocationName(strAddress, 5);
+                if (address == null) {
+                    return null;
+                }
+                Address location = address.get(0);
+                location.getLatitude();
+                location.getLongitude();
+
+                p1 = new LatLng(location.getLatitude(), location.getLongitude());
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            Address location = address.get(0);
-            location.getLatitude();
-            location.getLongitude();
-
-            p1 = new LatLng(location.getLatitude(), location.getLongitude());
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
         return p1;
     }
@@ -139,7 +143,8 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        for (int i = 0; i < Name.size(); i++) {
+
+        for (int i = 0; i < LatLng.size(); i++) {
             LatLng lat = LatLng.get(i);
             MarkerOptions mark = new MarkerOptions().position(lat)
                     .title("Contact Details").snippet("Name : " + Name.get(i) + "\nPhone : " + Phone.get(i) + "\nEmail : " + Email.get(i));
@@ -195,8 +200,11 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    System.out.println(name);
-                    Name.add(name);
+
+                    if (name != null)
+                        Name.add(name);
+                    else
+                        Name.add(" ");
 
                     // get the phone number
                     Cursor pCur = null;
@@ -208,8 +216,11 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                     while (pCur.moveToNext()) {
                         phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        System.out.println(phone);
-                        Phone.add(phone);
+
+                        if (phone != null)
+                            Phone.add(phone);
+                        else
+                            Phone.add(" ");
                     }
                     pCur.close();
 
@@ -225,13 +236,14 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                                 new String[]{id}, null);
                     }
                     while (emailCur.moveToNext()) {
-                        // This would allow you get several email addresses
-                        // if the email addresses were stored in an array
+
                         email = emailCur.getString(
                                 emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 
-                        System.out.println(email);
-                        Email.add(email);
+                        if (email != null)
+                            Email.add(email);
+                        else
+                            Email.add(" ");
                     }
                     emailCur.close();
 
@@ -274,15 +286,9 @@ public class ContactMap extends Fragment implements OnMapReadyCallback {
                         address = poBox + street + city + state + postalCode + country;
 
 
-                        // Do something with these....
-                        System.out.println(address);
-
                         LatLng lt = getLocationFromAddress(getActivity(), address);
 
                         LatLng.add(lt);
-                        System.out.println(" ******* " + lt.toString() + " ******* ");
-
-                        //contacts.add(address);
 
                     }
                     addrCur.close();

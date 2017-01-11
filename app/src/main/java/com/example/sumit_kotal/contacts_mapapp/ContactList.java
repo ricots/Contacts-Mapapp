@@ -64,7 +64,7 @@ public class ContactList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view =inflater.inflate(R.layout.fragment_contact_list, container, false);
+        view = inflater.inflate(R.layout.fragment_contact_list, container, false);
         list = (ListView) view.findViewById(R.id.list);
         readContacts();
         return view;
@@ -88,8 +88,6 @@ public class ContactList extends Fragment {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    System.out.println(name);
-                    //contacts.add(name);
 
                     // get the phone number
                     Cursor pCur = null;
@@ -101,8 +99,7 @@ public class ContactList extends Fragment {
                     while (pCur.moveToNext()) {
                         phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        System.out.println(phone);
-                        //contacts.add(phone);
+
                     }
                     pCur.close();
 
@@ -118,13 +115,10 @@ public class ContactList extends Fragment {
                                 new String[]{id}, null);
                     }
                     while (emailCur.moveToNext()) {
-                        // This would allow you get several email addresses
-                        // if the email addresses were stored in an array
+
                         email = emailCur.getString(
                                 emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 
-                        System.out.println(email);
-                        // contacts.add(email);
                     }
                     emailCur.close();
 
@@ -148,27 +142,30 @@ public class ContactList extends Fragment {
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POBOX)) != null)
                             poBox = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POBOX));
+                        else poBox = " ";
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET)) != null)
                             street = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
+                        else street = " ";
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY)) != null)
                             city = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY));
+                        else city = " ";
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.REGION)) != null)
                             state = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.REGION));
+                        else state = " ";
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE)) != null)
                             postalCode = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE));
+                        else postalCode = " ";
 
                         if (addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY)) != null)
                             country = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY));
+                        else country = " ";
 
                         address = poBox + street + city + state + postalCode + country;
 
-                        // Do something with these....
-                        System.out.println(address);
-                        //contacts.add(address);
 
                     }
                     addrCur.close();

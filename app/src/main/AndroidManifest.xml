@@ -31,7 +31,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyANhRNEktAN9fq7ylOp6-HAzOpkzEBqLa4" />
 
-        <activity android:name=".SyncWebContact"></activity>
+        <activity android:name=".SyncWebContact" />
+        <activity android:name=".PermissionsPage"></activity>
     </application>
 
 </manifest>

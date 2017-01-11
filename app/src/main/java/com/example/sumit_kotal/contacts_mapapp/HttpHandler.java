@@ -5,6 +5,7 @@ package com.example.sumit_kotal.contacts_mapapp;
  */
 
 import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;

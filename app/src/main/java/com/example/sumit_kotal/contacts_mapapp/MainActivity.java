@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int SPLASH_TIME_OUT = 1000;
+    private static int SPLASH_TIME_OUT = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,9 +24,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // This method will be executed once the timer is over
-                // Start your app main activity
-                startActivity(new Intent(MainActivity.this, SyncWebContact.class));
-                    finish();
+
+                startActivity(new Intent(MainActivity.this, PermissionsPage.class));
+                finish();
             }
 
         }, SPLASH_TIME_OUT);

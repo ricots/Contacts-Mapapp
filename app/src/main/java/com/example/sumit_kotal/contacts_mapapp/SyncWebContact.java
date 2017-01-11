@@ -219,10 +219,8 @@ public class SyncWebContact extends AppCompatActivity {
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
 
-            // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(url);
 
-            //Log.e(TAG, "Response from url: " + jsonStr);
 
             if (jsonStr != null) {
                 try {
@@ -251,12 +249,12 @@ public class SyncWebContact extends AppCompatActivity {
                         JSONObject ret = getLocationInfo(Double.parseDouble(lat), Double.parseDouble(lon));
                         JSONObject location;
                         try {
-                            //Get JSON Array called "results" and then get the 0th complete object as JSON
+
                             location = ret.getJSONArray("results").getJSONObject(0);
                             // Get the value of the attribute whose name is "formatted_string"
                             address = location.getString("formatted_address");
                             address = address.replace("Unnamed Road, ", "");
-                            //Log.d("test", "formattted address:" + location_string);
+
                         } catch (JSONException e1) {
                             e1.printStackTrace();
 
